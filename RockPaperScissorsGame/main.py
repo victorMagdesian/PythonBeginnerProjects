@@ -1,7 +1,19 @@
 import tkinter
+import random
+
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+
+global player
+global pc
+global rounds
+global playerScore
+global pcScore
+
+playerScore = 0
+pcScore = 0
+rounds = 5
 
 # colorsHex --------------------------------
 white = "#FFFFFF"  # white / branca
@@ -53,31 +65,125 @@ pcWinLabel.place(x=255, y=0)
 tieLabel = Label(frame_top, text="", width=255, anchor="center", font=("Ivy 10 bold"), bg=white, fg=white)
 tieLabel.place(x=0, y=95)
 
-# Options image
-rockIcon = Image.open("Assets/rock.png")
-paperIcon = Image.open("Assets/paper.png")
-scissorIcon = Image.open("Assets/scissor.png")
+pcChoose = Label(frame_bottom, text="", height=1, anchor="center", font=("Ivy 10 bold"), bg=white, fg=white)
+pcChoose.place(x=190, y=10)
 
-rockIcon.resize((50,50), Image.ANTIALIAS)
-rockIcon = ImageTk.PhotoImage(rockIcon)
+result = Label(frame_bottom, text="", height=1, anchor="center", font=("Ivy 40 bold"), bg=white, fg=white)
+result.place(x=100, y=60)
 
-paperIcon.resize((50,50), Image.ANTIALIAS)
-paperIcon = ImageTk.PhotoImage(paperIcon)
+# game over function
+def gameOver():
+    global playerScore
+    global pcScore
 
-scissorIcon.resize((50,50), Image.ANTIALIAS)
-scissorIcon = ImageTk.PhotoImage(scissorIcon)
+    buttonRock.destroy()
+    buttonPaper.destroy()
+    buttonScissor.destroy()
 
-buttonRock = Button(frame_bottom, width=50, image=rockIcon, compound=CENTER, bg=white, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
-buttonRock.place(x=40, y=60)
+    if pcScore > playerScore:
+        result["text"] = "LOSE"
+        result["fg"] = red
+    else:
+        result["text"] = "WIN"
+        result["fg"] = green
+    
+# game rules function
+def gameRule(choose):
+    global rounds
+    global playerScore
+    global pcScore
 
-buttonPaper = Button(frame_bottom, width=50, image=paperIcon, compound=CENTER, bg=white, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
-buttonPaper.place(x=105, y=60)
+    playerWinLabel["bg"] = white
+    tieLabel["bg"] = white
+    pcWinLabel["bg"] = white
 
-buttonScissor = Button(frame_bottom, width=50, image=scissorIcon, compound=CENTER, bg=white, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
-buttonScissor.place(x=165, y=60)
+    if rounds>=0:
+        optionPlays = ["rock", "paper", "scissor"]
 
-buttonPlay = Button(frame_bottom, width=30, text="Play", bg=background, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
+        pc = random.choice(optionPlays)
+        pcChoose['text'] = pc
+        pcChoose["fg"] = black
+
+        you = optionPlays[choose]
+        print(you)
+
+        match you:
+            case "rock":
+                if pc == "paper":
+                    pcScore += 1
+                    pcWinLabel["bg"] = red
+                elif pc == "scissor":
+                    playerScore += 1
+                    playerWinLabel["bg"] = green
+                else:
+                    tieLabel["bg"] = yellow
+            case "paper":
+                if pc == "scissor":
+                    pcScore += 1
+                    pcWinLabel["bg"] = red
+                elif pc == "rock":
+                    playerScore += 1
+                    playerWinLabel["bg"] = green
+                else:
+                    tieLabel["bg"] = yellow
+            case "scissor":
+                if pc == "rock":
+                    pcScore += 1
+                    pcWinLabel["bg"] = red
+                elif pc == "paper":
+                    playerScore += 1
+                    playerWinLabel["bg"] = green
+                else:
+                    tieLabel["bg"] = yellow
+
+        pcScoreLabel["text"] = pcScore
+        playerScoreLabel["text"] = playerScore
+        rounds-=1
+        if rounds == 0:
+            gameOver()
+
+# game start function
+def startGame():
+    global rockIcon
+    global paperIcon
+    global scissorIcon
+    global buttonRock
+    global buttonPaper
+    global buttonScissor
+    global rounds
+    global playerScore
+    global pcScore
+
+    playerScore = 0
+    pcScore = 0
+    rounds = 5
+
+    result["text"] = ""
+
+    rockIcon = Image.open("Assets/rock.png")
+    paperIcon = Image.open("Assets/paper.png")
+    scissorIcon = Image.open("Assets/scissor.png")
+
+    rockIcon.resize((50,50), Image.ANTIALIAS)
+    rockIcon = ImageTk.PhotoImage(rockIcon)
+
+    paperIcon.resize((50,50), Image.ANTIALIAS)
+    paperIcon = ImageTk.PhotoImage(paperIcon)
+
+    scissorIcon.resize((50,50), Image.ANTIALIAS)
+    scissorIcon = ImageTk.PhotoImage(scissorIcon)
+
+    buttonRock = Button(frame_bottom, command=lambda: gameRule(0), width=50, image=rockIcon, compound=CENTER, bg=white, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
+    buttonRock.place(x=40, y=60)
+
+    buttonPaper = Button(frame_bottom, command=lambda: gameRule(1), width=50, image=paperIcon, compound=CENTER, bg=white, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
+    buttonPaper.place(x=105, y=60)
+
+    buttonScissor = Button(frame_bottom, command=lambda: gameRule(2), width=50, image=scissorIcon, compound=CENTER, bg=white, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
+    buttonScissor.place(x=165, y=60)
+
+
+buttonPlay = Button(frame_bottom, command=startGame, width=30, text="Play", bg=background, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
 buttonPlay.place(x=5, y=151)
-
 
 window.mainloop()

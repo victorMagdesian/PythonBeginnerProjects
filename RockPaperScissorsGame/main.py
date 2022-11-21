@@ -1,5 +1,6 @@
 import tkinter
 import random
+import mysql.connector
 
 from tkinter import *
 from tkinter import ttk
@@ -10,10 +11,18 @@ global pc
 global rounds
 global playerScore
 global pcScore
+global fullScoreData
 
 playerScore = 0
 pcScore = 0
 rounds = 5
+fullScoreData = ["", "", "", "", ""]
+
+connection = mysql.connector.connect(
+        user="root", password="root", host="localhost", port="3306", database="db"
+    )
+
+cursor = connection.cursor()
 
 # colorsHex --------------------------------
 white = "#FFFFFF"  # white / branca
@@ -75,6 +84,7 @@ result.place(x=100, y=60)
 def gameOver():
     global playerScore
     global pcScore
+    global fullScoreData
 
     buttonRock.destroy()
     buttonPaper.destroy()
@@ -86,6 +96,19 @@ def gameOver():
     else:
         result["text"] = "WIN"
         result["fg"] = green
+    
+    # mySql connection
+
+    query = f'INSERT INTO games (RoundOneResult, RoundTwoResult, RoundThreeResult, RoundFourResult, RoundFiveResult, OverallResult) VALUES ("{fullScoreData[0]}", "{fullScoreData[1]}", "{fullScoreData[2]}", "{fullScoreData[3]}", "{fullScoreData[4]}", {playerScore>pcScore})'
+
+    cursor.execute("use db;")
+    cursor.execute(query)
+    cursor.execute("SELECT * from db.games")
+    selectResult = cursor.fetchall()
+    print(selectResult)
+    cursor.close()
+    connection.commit()
+   
     
 # game rules function
 def gameRule(choose):
@@ -105,36 +128,45 @@ def gameRule(choose):
         pcChoose["fg"] = black
 
         you = optionPlays[choose]
-        print(you)
 
         match you:
             case "rock":
                 if pc == "paper":
                     pcScore += 1
                     pcWinLabel["bg"] = red
+                    fullScoreData[5-rounds] = "LOSE"
                 elif pc == "scissor":
                     playerScore += 1
                     playerWinLabel["bg"] = green
+                    fullScoreData[5-rounds] = "WIN"
                 else:
                     tieLabel["bg"] = yellow
+                    fullScoreData[5-rounds] = "TIE"
             case "paper":
                 if pc == "scissor":
                     pcScore += 1
                     pcWinLabel["bg"] = red
+                    fullScoreData[5-rounds] = "LOSE"
                 elif pc == "rock":
                     playerScore += 1
                     playerWinLabel["bg"] = green
+                    fullScoreData[5-rounds] = "WIN"
+
                 else:
                     tieLabel["bg"] = yellow
+                    fullScoreData[5-rounds] = "TIE"
             case "scissor":
                 if pc == "rock":
                     pcScore += 1
                     pcWinLabel["bg"] = red
+                    fullScoreData[5-rounds] = "LOSE"
                 elif pc == "paper":
                     playerScore += 1
                     playerWinLabel["bg"] = green
+                    fullScoreData[5-rounds] = "WIN"
                 else:
                     tieLabel["bg"] = yellow
+                    fullScoreData[5-rounds] = "TIE"
 
         pcScoreLabel["text"] = pcScore
         playerScoreLabel["text"] = playerScore

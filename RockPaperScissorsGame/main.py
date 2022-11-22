@@ -1,6 +1,7 @@
 import tkinter
 import random
 import mysql.connector
+import pandas as pd
 
 from tkinter import *
 from tkinter import ttk
@@ -23,6 +24,47 @@ connection = mysql.connector.connect(
     )
 
 cursor = connection.cursor()
+
+# games history
+def lastGamesList():
+    """
+    global tree
+    historyWindow = Tk()
+    historyWindow.title("Last Games")
+    historyWindow.geometry("600x300")
+    
+    tree = ttk.Treeview(historyWindow)
+    tree["show"] = "headings"
+
+    tree["columns"] = ("RoundOne", "RoundTwo", "RoundThree", "RoundFour", "RoundFive", "OverallResult")
+
+    tree.column("RoundOne", width=50, minwidth=50, anchor=CENTER)
+    tree.column("RoundTwo", width=50, minwidth=50, anchor=CENTER)
+    tree.column("RoundThree", width=50, minwidth=50, anchor=CENTER)
+    tree.column("RoundFour", width=50, minwidth=50, anchor=CENTER)
+    tree.column("RoundFive", width=50, minwidth=50, anchor=CENTER)
+    tree.column("OverallResult", width=50, minwidth=50, anchor=CENTER)
+
+    tree.heading("RoundOne", text="Round One", anchor=CENTER)
+    tree.heading("RoundTwo", text="Round Two", anchor=CENTER)
+    tree.heading("RoundThree", text="Round Three", anchor=CENTER)
+    tree.heading("RoundFour", text="Round Four", anchor=CENTER)
+    tree.heading("RoundFive", text="Round Five", anchor=CENTER)
+    tree.heading("OverallResult", text="Overall Result", anchor=CENTER)
+
+    cursor.execute("SELECT * FROM games")
+    queryResponse = cursor.fetchall()
+    print(queryResponse)
+
+    i = 0
+    for row in queryResponse:
+        tree.insert('', i, text="", values=(row[0],row[1],row[2],row[3],row[4],row[5]))
+        i += 1
+    historyWindow.mainloop()
+    """
+    cursor.execute("SELECT * FROM games")
+    queryResponse = cursor.fetchall()
+    print(pd.DataFrame(queryResponse))
 
 # colorsHex --------------------------------
 white = "#FFFFFF"  # white / branca
@@ -77,6 +119,12 @@ tieLabel.place(x=0, y=95)
 pcChoose = Label(frame_bottom, text="", height=1, anchor="center", font=("Ivy 10 bold"), bg=white, fg=white)
 pcChoose.place(x=190, y=10)
 
+lastGamesIcon = Image.open("Assets/lastGames.png")
+lastGamesIcon.resize((26,26), Image.ANTIALIAS)
+lastGamesIcon = ImageTk.PhotoImage(lastGamesIcon)
+buttonlastGames = Button(frame_bottom, command=lastGamesList, width=50, image=lastGamesIcon, compound=CENTER, bg=yellow, fg=white, font=("Ivi 10 bold"), anchor=CENTER, relief="flat")
+buttonlastGames.place(x=15, y=120)
+
 result = Label(frame_bottom, text="", height=1, anchor="center", font=("Ivy 40 bold"), bg=white, fg=white)
 result.place(x=100, y=60)
 
@@ -106,10 +154,8 @@ def gameOver():
     cursor.execute("SELECT * from db.games")
     selectResult = cursor.fetchall()
     print(selectResult)
-    cursor.close()
     connection.commit()
-   
-    
+
 # game rules function
 def gameRule(choose):
     global rounds
